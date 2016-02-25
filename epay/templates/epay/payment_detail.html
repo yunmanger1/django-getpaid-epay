@@ -1,0 +1,22 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h2>Payment</h2>
+
+<table class="table">
+  <tr><th>ID</th><td>{{ object.pk }}</td></tr>
+  <tr><th>AMOUNT</th><td>{{ object.amount }}</td></tr>
+  <tr><th>Currency</th><td>{{ object.currency }}</td></tr>
+  <tr><th>STATUS</th><td>{{ object.get_status_display }}</td></tr>
+</table>
+
+<h2>KAZKOM</h2>
+
+<table class="table table-bordered table-hover table-condensed">
+  {% for key, value in response.items %}
+    <tr><th>{{ key }}</th><td>{{ value }}</td></tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
