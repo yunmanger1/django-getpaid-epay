@@ -37,6 +37,20 @@ if sys.argv[-1] == 'tag':
     os.system("git push --tags")
     sys.exit()
 
+if 'READTHEDOCS' in os.environ:
+    requirements = [
+        'django>=1.9.1',
+        'django-model-utils>=2.4',
+        'xmltodict>=0.9.2',
+    ]
+else:
+    requirements = [
+        'django-getpaid>=1.7.4',
+        'django-model-utils',
+        'xmltodict',
+        'M2Crypto'
+    ]
+
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
@@ -52,8 +66,7 @@ setup(
         'epay',
     ],
     include_package_data=True,
-    install_requires=[
-    ],
+    install_requires=requirements,
     license="BSD",
     zip_safe=False,
     keywords='django-getpaid-epay',

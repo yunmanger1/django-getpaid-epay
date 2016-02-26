@@ -5,12 +5,12 @@ django-getpaid-epay
 .. image:: https://badge.fury.io/py/django-getpaid-epay.png
     :target: https://badge.fury.io/py/django-getpaid-epay
 
-.. image:: https://travis-ci.org/yunmanger1/django-getpaid-epay.png?branch=master
-    :target: https://travis-ci.org/yunmanger1/django-getpaid-epay
+.. .. image:: https://travis-ci.org/yunmanger1/django-getpaid-epay.png?branch=master
+..     :target: https://travis-ci.org/yunmanger1/django-getpaid-epay
 
 A django-getpaid payment backend for Kazkommertsbank Epay
 
-.. image:: logo.png
+.. image:: _static/logo.png
     :target: https://epay.kkb.kz
 
 Documentation

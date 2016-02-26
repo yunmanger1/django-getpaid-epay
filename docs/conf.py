@@ -22,6 +22,21 @@ cwd = os.getcwd()
 parent = os.path.dirname(cwd)
 sys.path.append(parent)
 
+sys.path.insert(0, '../tests/project')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+
+from mock import Mock as MagicMock
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+MOCK_MODULES = ['M2Crypto', 'requests']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+import django
+django.setup()
 import epay
 
 # -- General configuration -----------------------------------------------------
