@@ -10,7 +10,7 @@ from getpaid.utils import build_absolute_uri, get_domain, get_backend_settings
 
 from .kkb.processing import Epay
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 DEFAULT_KKB_PUB_KEY = os.path.join(os.path.dirname(__file__), "keys", "kkbca.pem")

@@ -63,7 +63,7 @@ setup(
     author_email='germanilyin@gmail.com',
     url='https://github.com/yunmanger1/django-getpaid-epay',
     packages=[
-        'epay',
+        'epay', 'epay.kkb', 'epay.migrations'
     ],
     include_package_data=True,
     install_requires=requirements,
