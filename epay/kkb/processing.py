@@ -5,9 +5,13 @@ from . import signing
 from . import exceptions
 
 
+def id_modify(self, id):
+    return id
+
+
 class Epay(object):
 
-    BACKEND_TEST_GATEWAY_BASE_URL = u'https://3dsecure.kkb.kz'
+    BACKEND_TEST_GATEWAY_BASE_URL = u'https://testpay.kkb.kz'
     BACKEND_GATEWAY_BASE_URL = u'https://epay.kkb.kz'
     BACKEND_POST_URI = '/jsp/process/logon.jsp'
     BACKEND_CONFIRM_URI = '/jsp/remote/control.jsp'
@@ -19,8 +23,8 @@ class Epay(object):
     }
     BACKEND_ACCEPTED_CURRENCY = (u'KZT', u'USD', u'EUR')
 
-    modify_order_id = None
-    unmodify_order_id = None
+    modify_order_id = id_modify
+    unmodify_order_id = id_modify
     key_passphrase = None
     testing = False
     private_key = None
@@ -28,9 +32,14 @@ class Epay(object):
     merchant_name = "Demo Shop"
     merchant_id = "92061101"
     merchant_cert_id = "00c182b189"
+    auto_capture = False
 
     def __init__(self, **kw):
         for key, value in kw.items():
+            if key.startswith('get_'):
+                continue
+            if key in ('modify_order_id', 'unmodify_order_id'):
+                setattr(self, key, lambda self, id: value(id))
             setattr(self, key, value)
 
     def get_number_for_currency(self, currency):

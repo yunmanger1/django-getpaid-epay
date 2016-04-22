@@ -37,6 +37,7 @@ Here is minimal configuration::
             "unmodify_order_id": lambda id: id - 100000,  # optional
             'scheme': 'http',  # optional
             'testing' : True,  # optional
+            'template': 'some_template',  # optional
         },
     }
 
@@ -53,6 +54,13 @@ Explanation:
  * ``unmodify_order_id`` - the reverse of ``modify_order_id``. Used when order id is receive from epay.
  * ``scheme`` - Use http or https protocol for callback and fallback urls
  * ``testing`` - boolean. use testing or production epay server
+ * ``auto_capture`` - boolean. Automatically capture blocked money
+ * ``template`` - template of epay payment page
+ * ``get_email`` - function. takes two arguments (request, payment). This value can be specified to override default logic.
+ * ``get_language`` - function. takes two arguments (request, payment). This value can be specified to override default logic.
+ * ``get_template`` - function. takes two arguments (request, payment). This value can be specified to override default logic.
+ * ``get_fail_backlink`` - function. takes two arguments (request, payment). This value can be specified to override default logic.
+ * ``get_backlink_url`` - function. takes two arguments (request, payment). This value can be specified to override default logic.
 
 .. note:: order_id sent to epay should be unique. You cannot authenticate two different payments with same id. Sometimes it's useful to be able to modify ``order_id`` sent to epay, you can do it with ``modify_order_id`` and ``unmodify_order_id`` settings.
 

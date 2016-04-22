@@ -10,15 +10,11 @@ from getpaid.utils import build_absolute_uri, get_domain, get_backend_settings
 
 from .kkb.processing import Epay
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 
 DEFAULT_KKB_PUB_KEY = os.path.join(os.path.dirname(__file__), "keys", "kkbca.pem")
 DEFAULT_MERCHANT_PRIVATE_KEY = os.path.join(os.path.dirname(__file__), "keys", "cert.pem")
-
-
-def same_id(id):
-    return id
 
 
 class PaymentProcessor(PaymentProcessorBase):
@@ -44,7 +40,7 @@ class PaymentProcessor(PaymentProcessorBase):
     )
 
     def get_scheme(self, request):
-        scheme = self.get_backend_setting('scheme', None)
+        scheme = self.get_backend_setting('scheme', 'https')
         if not scheme and request.is_secure():
             scheme = 'https'
         else:
@@ -55,30 +51,66 @@ class PaymentProcessor(PaymentProcessorBase):
         """
         :return: rus|eng depending on user request
         """
+        if 'get_language' in self.backend_settings:
+            return self.backend_settings['get_language'](request, self.payment)
         return "rus"
 
-    def build_attrs(self, scheme='https', language="rus"):
-        return {
+    def get_email(self, request):
+        if 'get_email' in self.backend_settings:
+            return self.backend_settings['get_email'](request, self.payment)
+        if hasattr(self.payment.order, 'email'):
+            return self.payment.order.email
+
+    def get_template(self, request):
+        if 'get_template' in self.backend_settings:
+            return self.backend_settings['get_template'](request, self.payment)
+        if 'template' in self.backend_settings:
+            return self.backend_settings['template']
+
+    def get_fail_backlink(self, request):
+        if 'get_fail_backlink' in self.backend_settings:
+            return self.backend_settings['get_fail_backlink'](request, self.payment)
+
+    def build_attrs(self, request, scheme='https', language="rus"):
+        attrs = {
             'Signed_Order_B64': self.epay.sign_order(self.payment.id, self.payment.amount, self.payment.currency),
             'Language': language,
-            'BackLink': self.get_backlink_url(scheme=scheme),
-            'PostLink': self.get_postlink_url(scheme=scheme)
+            'BackLink': self.get_backlink_url(request, scheme=scheme),
+            'PostLink': self.get_postlink_url(request, scheme=scheme)
         }
+        email = self.get_email(request)
+        template = self.get_template(request)
+        fail_back_link = self.get_fail_backlink(request)
+        if email:
+            attrs['email'] = email
+
+        if template:
+            attrs['template'] = template
+
+        if fail_back_link:
+            attrs['FailureBackLink'] = fail_back_link
+
+        # TODO: support for FailurePostLink
+
+        return attrs
+
 
     def get_gateway_url(self, request):
         return (
             self.epay.get_gateway_url(),
             "POST",
-            self.build_attrs(self.get_scheme(request), language=self.get_language(request))
+            self.build_attrs(request, self.get_scheme(request), language=self.get_language(request))
         )
 
-    def get_backlink_url(self, scheme):
+    def get_backlink_url(self, request, scheme):
+        if 'get_backlink_url' in self.backend_settings:
+            return self.backend_settings['get_backlink_url'](request, self.payment)
         return "{}://{}{}".format(
             scheme,
             get_domain(),
             self.payment.order.get_absolute_url())
 
-    def get_postlink_url(self, **kw):
+    def get_postlink_url(self, request, **kw):
         return build_absolute_uri('epay:postlink', **kw)
 
     @staticmethod
@@ -122,7 +154,12 @@ class PaymentProcessor(PaymentProcessorBase):
                 customer_phone=customer_params.get('phone', ''),
             )
             epay_payment.save()
-            return payment.on_success(amount)
+            res = payment.on_success(amount)
+            if epay.auto_capture:
+                PaymentProcessor.completed(epay_payment.pk)
+            return res
+
+
 
     @staticmethod
     def completed(payment_id):
