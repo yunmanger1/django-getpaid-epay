@@ -21,5 +21,7 @@ History
 * Added ``auto_capture`` setting
 * Updated test geteway url to https://testpay.kkb.kz
 
+0.1.3 (2016-04-22)
+++++++++++++++++++
 
-
+* Bugfix `scheme` setting handling

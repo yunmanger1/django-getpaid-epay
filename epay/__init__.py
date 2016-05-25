@@ -10,7 +10,7 @@ from getpaid.utils import build_absolute_uri, get_domain, get_backend_settings
 
 from .kkb.processing import Epay
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 
 DEFAULT_KKB_PUB_KEY = os.path.join(os.path.dirname(__file__), "keys", "kkbca.pem")
@@ -41,10 +41,11 @@ class PaymentProcessor(PaymentProcessorBase):
 
     def get_scheme(self, request):
         scheme = self.get_backend_setting('scheme', 'https')
-        if not scheme and request.is_secure():
-            scheme = 'https'
-        else:
-            scheme = 'http'
+        if not scheme:
+            if request.is_secure():
+                scheme = 'https'
+            else:
+                scheme = 'http'
         return scheme
 
     def get_language(self, request):
